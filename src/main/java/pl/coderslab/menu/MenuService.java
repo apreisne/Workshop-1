@@ -21,7 +21,7 @@ public class MenuService {
         try {
             getAllTasks(FILE_PATH);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.printf("Error ocurred while reading file: %s%n", e.getMessage());
         }
 
         while (true) {
