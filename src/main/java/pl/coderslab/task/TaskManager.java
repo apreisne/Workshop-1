@@ -2,19 +2,28 @@ package pl.coderslab.task;
 
 import pl.coderslab.utils.ConsoleColors;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+import static org.apache.commons.lang3.ArrayUtils.remove;
+import static org.apache.commons.lang3.math.NumberUtils.isParsable;
 import static pl.coderslab.menu.MenuService.displayMainMenu;
 
 public class TaskManager {
 
     public static final String FILE_PATH = "src/main/resources/tasks.csv";
     public static final Scanner SCANNER = new Scanner(System.in);
-    private static final String DATE_REGEX = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
-    private static List<String> cachedTasks = new ArrayList<>();
+    private static final String DATE_FORMAT_REGEX = "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
+    public static String[][] tasks = new String[][]{};
 
     public static void main(String[] args) {
 
@@ -22,30 +31,67 @@ public class TaskManager {
     }
 
     /**
-     * Loads tasks to the list and handles any exceptions.
+     * Loads tasks to the String array.
      *
      * @param fileName represents path to the file.
-     * @return list of tasks or an empty list in case of error.
+     * @return array of tasks.
      */
-    public static List<String> getTasks(String fileName) {
+    public static String[][] getAllTasks(String fileName) throws IOException {
 
-        try (Scanner scanner = new Scanner((Paths.get(fileName)))) {
+        List<String> lines = Files.readAllLines(Path.of(fileName));
+        int linesCount = lines.size();
+
+        String[][] allTasks = Arrays.copyOf(tasks, linesCount);
+
+        try (Scanner scanner = new Scanner(new FileReader(fileName))) {
             while (scanner.hasNextLine()) {
-                var line = scanner.nextLine();
-                cachedTasks.add(line);
+                for (int i = 0; i < linesCount; i++) {
+                    allTasks[i] = scanner.nextLine().split(", ");
+                }
             }
-            return cachedTasks;
-        } catch (Exception e) {
-            System.err.printf("Error while reading file: %s%n", fileName);
         }
-        return List.of();
+        tasks = allTasks;
+
+        return allTasks;
+    }
+
+
+    /**
+     * Removes task chosen by user by index
+     */
+    public static void removeTask() {
+
+        int index;
+
+        while (true) {
+            try {
+                index = getIndexOfTask();
+                if (index == 0) break;
+                String[][] updated = Arrays.copyOf(tasks, tasks.length);
+                tasks = remove(updated, index - 1);
+                break;
+
+            } catch (InputMismatchException | IndexOutOfBoundsException e) {
+                System.err.printf("Please provide valid number. %s %n", e.getMessage());
+            }
+        }
     }
 
     /**
-     * Removes task chosen by user by task number
+     * Asks user for index of the task
+     *
+     * @return index of task advised by user, which should be removed
      */
-    //todo
-    public static void removeTask() {
+    public static int getIndexOfTask() {
+
+        while (true) {
+            System.out.println(""" 
+                    Please enter the task index, which you would like to remove. For exit press 0.
+                    """);
+            String index = SCANNER.nextLine();
+            if (isParsable(index)) return Integer.parseInt(index);
+            else System.out.println("Please enter a valid number index.");
+        }
     }
 
     /**
@@ -57,17 +103,22 @@ public class TaskManager {
 
         var sb = new StringBuilder();
 
-        //todo set tasks number
-        String taskNumber = "0";
-
         var taskDescription = askForDescription();
         var dueDate = askForDueDate();
         var isImportant = askForImportance();
 
-
-        sb.append(taskNumber).append(" : ").append(taskDescription).append(", ").append(dueDate).append(", ").append(isImportant);
+        sb.append(taskDescription).append(", ").append(dueDate).append(", ").append(isImportant);
 
         return sb.toString();
+    }
+
+    public static void addTask() throws IOException {
+
+        String newTask = createTask();
+
+        String[][] updated = Arrays.copyOf(tasks, tasks.length + 1);
+        updated[updated.length - 1] = new String[]{newTask};
+        tasks = updated;
     }
 
     /**
@@ -100,9 +151,10 @@ public class TaskManager {
             System.out.println(ConsoleColors.RESET + "Please enter due date in format YYYY-MM-DD:");
             var date = SCANNER.nextLine();
 
-            if (date.matches(DATE_REGEX)) return date;
-            else System.out.println(ConsoleColors.RED_UNDERLINED + "Invalid due date format. Please try again.");
-
+            if (date.matches(DATE_FORMAT_REGEX)) {
+                if (isValidDate(date)) return date;
+                else System.out.println(ConsoleColors.RED_UNDERLINED + "Invalid due date. Please try again.");
+            }
         }
     }
 
@@ -117,5 +169,21 @@ public class TaskManager {
         return SCANNER.nextLine();
     }
 
+    /**
+     * Validates correctness of the given date.
+     *
+     * @param dateStr takes date as a String.
+     * @return true or false depending on correctness of the date.
+     */
+    private static boolean isValidDate(String dateStr) {
 
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate.parse(dateStr, formatter);
+            return true;
+
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 }

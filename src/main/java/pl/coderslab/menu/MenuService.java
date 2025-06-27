@@ -2,11 +2,12 @@ package pl.coderslab.menu;
 
 import pl.coderslab.utils.ConsoleColors;
 
+import java.io.IOException;
 import java.util.InputMismatchException;
 
-import static pl.coderslab.task.TaskManager.*;
 import static pl.coderslab.file.FileService.readFile;
 import static pl.coderslab.file.FileService.writeTaskToFile;
+import static pl.coderslab.task.TaskManager.*;
 
 public class MenuService {
 
@@ -16,17 +17,24 @@ public class MenuService {
      */
     public static void displayMainMenu() {
 
+        try {
+            getAllTasks(FILE_PATH);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         while (true) {
             try {
                 entryMenu();
-                String userChoice = SCANNER.nextLine();
+                var userChoice = SCANNER.nextLine();
 
                 switch (userChoice) {
-                    case "add" -> writeTaskToFile(FILE_PATH);
+                    case "add" -> addTask();
                     case "remove" -> removeTask();
-                    case "list" -> readFile(FILE_PATH);
+                    case "list" -> readFile();
                     case "exit" -> {
 
+                        writeTaskToFile(tasks);
                         System.out.println(ConsoleColors.RED + "Bye bye");
                         return;
                     }
@@ -36,7 +44,8 @@ public class MenuService {
             } catch (InputMismatchException ex) {
                 System.err.printf("Invalid input! %n");
                 SCANNER.nextLine();
-                entryMenu();
+            } catch (IOException e) {
+                System.err.printf("Could not finish operations for file: %s%n", FILE_PATH);
             }
         }
     }

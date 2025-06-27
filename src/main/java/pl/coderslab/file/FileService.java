@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static pl.coderslab.task.TaskManager.createTask;
-import static pl.coderslab.task.TaskManager.getTasks;
+import static pl.coderslab.task.TaskManager.*;
 
 public class FileService {
 
@@ -23,30 +22,31 @@ public class FileService {
     }
 
     /**
-     * Reads all lines for the given file.
-     *
-     * @param fileName represents path to the file.
+     * Reads all lines for the given file and adds number of task at the beginning.
      */
-    public static void readFile(String fileName) {
+    public static void readFile() throws IOException {
 
-        validateFileExists(fileName);
-        getTasks(fileName).forEach(System.out::println);
+        int counter = 1;
 
+        for (String[] strings : tasks) {
+            System.out.printf("%d : %s%n", counter, String.join(", ", strings));
+            counter++;
+        }
     }
 
     /**
-     * Writes new task to the file
-     * @param fileName represents path of the file
+     * Writes updated array of tasks to the file
+     *
+     * @param arr takes array of tasks which is about to be saved
      */
-    public static void writeTaskToFile(String fileName) {
+    public static void writeTaskToFile(String[][] arr) throws IOException {
 
-        var newTask = createTask();
+        validateFileExists(FILE_PATH);
 
-        try (FileWriter fw = new FileWriter(fileName, true)) {
-            fw.write(newTask + "\n");
-
-        } catch (IOException ioe) {
-            System.err.printf("Error writing to file %s.", fileName);
+        try (FileWriter fileWriter = new FileWriter(FILE_PATH, false)) {
+            for (String[] strings : arr) {
+                fileWriter.write(String.join(", ", strings) + "\n");
+            }
         }
     }
 }
