@@ -15,6 +15,7 @@ public class MenuService {
      * Displays the main menu of the application and handles user input.
      * Allows the user to navigate between submenus.
      */
+
     public static void displayMainMenu() {
 
         try {
