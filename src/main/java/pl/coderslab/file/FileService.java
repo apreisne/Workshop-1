@@ -1,5 +1,7 @@
 package pl.coderslab.file;
 
+import pl.coderslab.utils.ConsoleColors;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,7 +31,8 @@ public class FileService {
         int counter = 1;
 
         for (String[] strings : tasks) {
-            System.out.printf("%d : %s%n", counter, String.join(", ", strings));
+            System.out.printf(ConsoleColors.RESET + "%d : %s", counter, String.join(", ", strings[0], strings[1]));
+            System.out.printf(", %s%n", ConsoleColors.RED + strings[2]);
             counter++;
         }
     }
