@@ -117,7 +117,7 @@ public class TaskManager {
         String newTask = createTask();
 
         String[][] updated = Arrays.copyOf(tasks, tasks.length + 1);
-        updated[updated.length - 1] = new String[]{newTask};
+        updated[updated.length - 1] = newTask.split(", ");
         tasks = updated;
     }
 
