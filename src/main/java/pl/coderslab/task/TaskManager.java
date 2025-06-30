@@ -83,7 +83,8 @@ public class TaskManager {
 
         while (true) {
             System.out.println(""" 
-                    Please enter the task index, which you would like to remove. For exit press 0.
+                    Please enter the task index, which you would like to remove. 
+                    For exit press 0.
                     """);
             String index = SCANNER.nextLine();
             if (isParsable(index)) {
