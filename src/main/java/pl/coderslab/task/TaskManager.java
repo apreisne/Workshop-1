@@ -34,9 +34,8 @@ public class TaskManager {
      * Loads tasks to the String array.
      *
      * @param fileName represents path to the file.
-     * @return array of tasks.
      */
-    public static String[][] getAllTasks(String fileName) throws IOException {
+    public static void getAllTasks(String fileName) throws IOException {
 
         List<String> lines = Files.readAllLines(Path.of(fileName));
         int linesCount = lines.size();
@@ -51,8 +50,6 @@ public class TaskManager {
             }
         }
         tasks = allTasks;
-
-        return allTasks;
     }
 
 
@@ -89,9 +86,24 @@ public class TaskManager {
                     Please enter the task index, which you would like to remove. For exit press 0.
                     """);
             String index = SCANNER.nextLine();
-            if (isParsable(index)) return Integer.parseInt(index);
-            else System.out.println("Please enter a valid number index.");
+            if (isParsable(index)) {
+                return Integer.parseInt(index);
+            } else {
+                System.out.println("Please enter a valid number index.");
+            }
         }
+    }
+
+    /**
+     * Adds new task to tasks array
+     */
+    public static void addTask() {
+
+        String newTask = createTask();
+
+        String[][] updated = Arrays.copyOf(tasks, tasks.length + 1);
+        updated[updated.length - 1] = newTask.split(", ");
+        tasks = updated;
     }
 
     /**
@@ -99,7 +111,7 @@ public class TaskManager {
      *
      * @return object of class StringBuilder converted to object of class String.
      */
-    public static String createTask() {
+    private static String createTask() {
 
         var sb = new StringBuilder();
 
@@ -110,15 +122,6 @@ public class TaskManager {
         sb.append(taskDescription).append(", ").append(dueDate).append(", ").append(isImportant);
 
         return sb.toString();
-    }
-
-    public static void addTask() throws IOException {
-
-        String newTask = createTask();
-
-        String[][] updated = Arrays.copyOf(tasks, tasks.length + 1);
-        updated[updated.length - 1] = newTask.split(", ");
-        tasks = updated;
     }
 
     /**
@@ -152,8 +155,11 @@ public class TaskManager {
             var date = SCANNER.nextLine();
 
             if (date.matches(DATE_FORMAT_REGEX)) {
-                if (isValidDate(date)) return date;
-                else System.out.println(ConsoleColors.RED_UNDERLINED + "Invalid due date. Please try again.");
+                if (isValidDate(date)) {
+                    return date;
+                } else {
+                    System.out.println(ConsoleColors.RED_UNDERLINED + "Invalid due date. Please try again.");
+                }
             }
         }
     }
@@ -178,9 +184,9 @@ public class TaskManager {
     private static boolean isValidDate(String dateStr) {
 
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate.parse(dateStr, formatter);
-            return true;
+            var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            var date = LocalDate.parse(dateStr, formatter);
+            return !date.isBefore(LocalDate.now());
 
         } catch (DateTimeParseException e) {
             return false;

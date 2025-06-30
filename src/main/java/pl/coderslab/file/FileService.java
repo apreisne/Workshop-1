@@ -11,6 +11,9 @@ import static pl.coderslab.task.TaskManager.*;
 
 public class FileService {
 
+    private FileService() {
+    }
+
     /**
      * Validates, that the files exists at the given path.
      *
@@ -26,7 +29,7 @@ public class FileService {
     /**
      * Reads all lines for the given file and adds number of task at the beginning.
      */
-    public static void readFile() throws IOException {
+    public static void readFile() {
 
         int counter = 1;
 

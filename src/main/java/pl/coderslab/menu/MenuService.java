@@ -11,6 +11,9 @@ import static pl.coderslab.task.TaskManager.*;
 
 public class MenuService {
 
+    private MenuService() {
+    }
+
     /**
      * Displays the main menu of the application and handles user input.
      * Allows the user to navigate between submenus.
@@ -21,7 +24,7 @@ public class MenuService {
         try {
             getAllTasks(FILE_PATH);
         } catch (IOException e) {
-            System.err.printf("Error ocurred while reading file: %s%n", e.getMessage());
+            System.err.printf("Error occurred while reading file: %s%n", e.getMessage());
         }
 
         while (true) {
